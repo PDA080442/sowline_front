@@ -1,10 +1,17 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 
 import AppToast from '@/components/common/AppToast.vue'
 import { useAppNotify } from '@/composables/useAppNotify'
+import { useAuthStore } from '@/stores/auth'
 
 const { snackbarState, hideSnackbar } = useAppNotify()
+const authStore = useAuthStore()
+
+onMounted(() => {
+  authStore.ensureProfile()
+})
 </script>
 
 <template>

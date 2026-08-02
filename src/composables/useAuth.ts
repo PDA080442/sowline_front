@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { isApiRequestError } from '@/api/client'
 import { setTokens } from '@/api/tokens'
@@ -23,6 +23,7 @@ export interface ResetPasswordFormPayload {
 
 export const useAuth = () => {
   const router = useRouter()
+  const route = useRoute()
   const authStore = useAuthStore()
   const authApi = useAuthApi()
   const profileApi = useProfileApi()
@@ -92,8 +93,17 @@ export const useAuth = () => {
       const tokens = await authApi.login({ email, password })
       setTokens(tokens.access, tokens.refresh)
       authStore.setProfile(await profileApi.getProfile())
-      await router.push('/workspace/select')
+
+      const redirect = route.query.redirect
+      const target =
+        typeof redirect === 'string' && redirect.startsWith('/') ? redirect : '/workspace/select'
+      await router.push(target)
     } catch (err) {
+      if (isApiRequestError(err) && err.body.code === 'INVALID_CREDENTIALS') {
+        error.value = 'Неверный email или пароль'
+        return
+      }
+
       if (isApiRequestError(err) && err.body.code === 'EMAIL_NOT_VERIFIED') {
         error.value = 'Подтвердите email перед входом. Проверьте почту.'
         return
