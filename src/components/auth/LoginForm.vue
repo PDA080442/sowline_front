@@ -96,8 +96,8 @@ import AuthLogo from '@/components/auth/AuthLogo.vue'
 import AuthTextField from '@/components/auth/AuthTextField.vue'
 import { useAuth } from '@/composables/useAuth'
 
-const email = ref('demo@example.com')
-const password = ref('demo1234')
+const email = ref('')
+const password = ref('')
 const showPassword = ref(false)
 
 const { loading, error, handleLogin } = useAuth()

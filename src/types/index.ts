@@ -35,6 +35,31 @@ export type {
 export type { UpdateUserProfileRequest, UserProfile } from './profile'
 
 export type {
+  JiraBoard,
+  JiraConnection,
+  JiraConnectionAccount,
+  JiraConnectionCreate,
+  JiraConnectionListResponse,
+  JiraConnectionTestResult,
+  JiraConnectionTestStatus,
+  JiraConnectionUpdate,
+  JiraField,
+  JiraGuide,
+  JiraGuideBlock,
+  JiraGuideFieldItem,
+  JiraGuideListItem,
+  JiraGuideSection,
+  JiraGuideStepItem,
+  JiraIssueType,
+  JiraMetadataItem,
+  JiraMetadataSyncResponse,
+  JiraProjectMetadata,
+  JiraSprint,
+  JiraSyncStatus,
+  TemplateFieldType,
+} from './jira'
+
+export type {
   AcceptWorkspaceInviteRequest,
   AcceptWorkspaceInviteResponse,
   CreateWorkspaceInviteRequest,

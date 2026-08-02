@@ -1,6 +1,7 @@
 export { useApi, type ApiCallOptions } from './useApi'
 export { useAuthApi } from './useAuthApi'
 export { useHealthApi } from './useHealthApi'
+export { CONNECTION_GUIDE_SLUG, useJiraApi } from './useJiraApi'
 export { useProfileApi } from './useProfileApi'
 export { useWorkspaceApi } from './useWorkspaceApi'
 
