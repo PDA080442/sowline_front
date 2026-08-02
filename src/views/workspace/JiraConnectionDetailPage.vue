@@ -107,6 +107,7 @@
           :error="metadataError"
           :status="status"
           :can-manage="isWorkspaceAdmin"
+          :poll-timed-out="pollTimedOut"
           @sync="handleSync"
           @retry="loadMetadata"
         />
@@ -170,6 +171,7 @@ const {
   syncing,
   error: metadataError,
   status,
+  pollTimedOut,
   handleFetchMetadata,
   handleSyncMetadata,
   resumePollIfSyncing,

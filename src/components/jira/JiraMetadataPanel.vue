@@ -4,7 +4,10 @@
       <div>
         <h2 class="jira-metadata-panel__title">Метаданные проекта</h2>
         <p v-if="metadata" class="jira-metadata-panel__subtitle">
-          {{ metadata.project_name }} ({{ metadata.project_key }})
+          {{ metadata.project_name || metadata.project_key }}
+          <template v-if="metadata.project_name && metadata.project_key">
+            ({{ metadata.project_key }})
+          </template>
         </p>
       </div>
       <v-btn
@@ -13,7 +16,7 @@
         class="text-none"
         prepend-icon="mdi-sync"
         :loading="syncing"
-        :disabled="syncing || status === 'syncing'"
+        :disabled="syncing || (status === 'syncing' && !pollTimedOut)"
         aria-label="Обновить метаданные проекта"
         @click="emit('sync')"
       >
@@ -27,6 +30,7 @@
       :is-stale="metadata.is_stale"
       :last-error="metadata.last_error"
       :fetched-at="metadata.fetched_at"
+      :poll-timed-out="pollTimedOut"
     />
 
     <div v-if="loading" aria-busy="true">
@@ -65,6 +69,38 @@
       />
 
       <div
+        v-else-if="metadata.status === 'syncing' && pollTimedOut"
+        class="jira-metadata-panel__timeout"
+        role="status"
+        aria-live="polite"
+      >
+        <v-icon icon="mdi-timer-sand" size="40" color="warning" />
+        <h3 class="jira-metadata-panel__timeout-title">Синхронизация занимает дольше обычного</h3>
+        <p class="jira-metadata-panel__timeout-text">
+          Задача могла зависнуть на сервере. Обновите страницу позже или попробуйте ещё раз.
+        </p>
+        <div class="jira-metadata-panel__timeout-actions">
+          <v-btn
+            variant="outlined"
+            class="text-none"
+            prepend-icon="mdi-refresh"
+            @click="emit('retry')"
+          >
+            Проверить статус
+          </v-btn>
+          <v-btn
+            v-if="canManage"
+            color="primary"
+            class="text-none"
+            prepend-icon="mdi-sync"
+            @click="emit('sync')"
+          >
+            Повторить синхронизацию
+          </v-btn>
+        </div>
+      </div>
+
+      <div
         v-else-if="metadata.status === 'syncing'"
         class="jira-metadata-panel__syncing"
         role="status"
@@ -88,14 +124,20 @@ import JiraMetadataSkeleton from '@/components/jira/JiraMetadataSkeleton.vue'
 import JiraMetadataStatusBanner from '@/components/jira/JiraMetadataStatusBanner.vue'
 import type { JiraProjectMetadata, JiraSyncStatus } from '@/types'
 
-defineProps<{
-  metadata: JiraProjectMetadata | null
-  loading: boolean
-  syncing: boolean
-  error: string
-  status: JiraSyncStatus | string
-  canManage: boolean
-}>()
+withDefaults(
+  defineProps<{
+    metadata: JiraProjectMetadata | null
+    loading: boolean
+    syncing: boolean
+    error: string
+    status: JiraSyncStatus | string
+    canManage: boolean
+    pollTimedOut?: boolean
+  }>(),
+  {
+    pollTimedOut: false,
+  },
+)
 
 const emit = defineEmits<{
   sync: []
@@ -136,7 +178,8 @@ const emit = defineEmits<{
   margin-top: 20px;
 }
 
-.jira-metadata-panel__syncing {
+.jira-metadata-panel__syncing,
+.jira-metadata-panel__timeout {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -144,6 +187,28 @@ const emit = defineEmits<{
   padding: 48px 24px;
   text-align: center;
   color: #57534e;
+}
+
+.jira-metadata-panel__timeout-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1c1917;
+}
+
+.jira-metadata-panel__timeout-text {
+  margin: 0;
+  max-width: 420px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.jira-metadata-panel__timeout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 @media (max-width: 768px) {
@@ -157,6 +222,15 @@ const emit = defineEmits<{
   }
 
   .jira-metadata-panel__header .v-btn {
+    width: 100%;
+  }
+
+  .jira-metadata-panel__timeout-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .jira-metadata-panel__timeout-actions .v-btn {
     width: 100%;
   }
 }

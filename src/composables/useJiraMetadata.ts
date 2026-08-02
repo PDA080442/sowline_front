@@ -10,7 +10,8 @@ import type { JiraProjectMetadata, JiraSyncStatus } from '@/types'
 import { applyApiError } from '@/utils/apiErrors'
 
 const POLL_INTERVAL_MS = 2500
-const POLL_TIMEOUT_MS = 3 * 60 * 1000
+/** Stop polling after ~90s — Celery may be down; don't spin forever. */
+const POLL_TIMEOUT_MS = 90 * 1000
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -137,7 +138,9 @@ export const useJiraMetadata = () => {
       if (Date.now() - startedAt >= POLL_TIMEOUT_MS) {
         pollTimedOut.value = true
         syncing.value = false
-        showError('Синхронизация занимает больше обычного. Попробуйте обновить страницу позже.')
+        showError(
+          'Синхронизация занимает дольше обычного. Обновите страницу позже или попробуйте ещё раз.',
+        )
         return data
       }
     }

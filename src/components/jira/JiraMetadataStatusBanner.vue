@@ -3,14 +3,14 @@
     v-if="showBanner"
     :type="alertType"
     variant="tonal"
-    :icon="syncMeta.icon"
+    :icon="bannerIcon"
     class="jira-metadata-status-banner"
     role="status"
     aria-live="polite"
   >
     <div class="jira-metadata-status-banner__content">
       <div>
-        <strong>{{ syncMeta.label }}</strong>
+        <strong>{{ bannerLabel }}</strong>
         <span v-if="description" class="jira-metadata-status-banner__detail">{{
           description
         }}</span>
@@ -28,12 +28,20 @@ import { computed } from 'vue'
 import { formatJiraDateTime, getSyncStatusMeta, isMetadataStale } from '@/models/jira'
 import type { JiraSyncStatus } from '@/types'
 
-const props = defineProps<{
-  status: JiraSyncStatus | string
-  isStale: boolean
-  lastError?: string
-  fetchedAt?: string | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    status: JiraSyncStatus | string
+    isStale: boolean
+    lastError?: string
+    fetchedAt?: string | null
+    pollTimedOut?: boolean
+  }>(),
+  {
+    lastError: '',
+    fetchedAt: null,
+    pollTimedOut: false,
+  },
+)
 
 const syncMeta = computed(() => getSyncStatusMeta(props.status))
 
@@ -50,6 +58,10 @@ const alertType = computed(() => {
     return 'error'
   }
 
+  if (props.pollTimedOut && props.status === 'syncing') {
+    return 'warning'
+  }
+
   if (isMetadataStale(props.isStale, props.status)) {
     return 'warning'
   }
@@ -61,9 +73,29 @@ const alertType = computed(() => {
   return 'info'
 })
 
+const bannerLabel = computed(() => {
+  if (props.pollTimedOut && props.status === 'syncing') {
+    return 'Синхронизация затянулась'
+  }
+
+  return syncMeta.value.label
+})
+
+const bannerIcon = computed(() => {
+  if (props.pollTimedOut && props.status === 'syncing') {
+    return 'mdi-timer-sand'
+  }
+
+  return syncMeta.value.icon
+})
+
 const description = computed(() => {
   if (props.status === 'failed') {
     return props.lastError || syncMeta.value.description
+  }
+
+  if (props.pollTimedOut && props.status === 'syncing') {
+    return 'Ответ от сервера всё ещё «syncing». Обновите страницу позже или повторите синхронизацию.'
   }
 
   if (isMetadataStale(props.isStale, props.status)) {
