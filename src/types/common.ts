@@ -18,10 +18,11 @@ export type ApiErrorCode =
   | 'AUTHENTICATION_FAILED'
   | 'EMAIL_NOT_VERIFIED'
   | 'VALIDATION_ERROR'
-  | 'TOKEN_INVALID'
+  | 'TOKEN_NOT_VALID'
   | 'TOKEN_EXPIRED'
   | 'FORBIDDEN'
   | 'NOT_FOUND'
+  | 'SYNC_IN_PROGRESS'
 
 export type FieldErrors = Record<string, string[]>
 

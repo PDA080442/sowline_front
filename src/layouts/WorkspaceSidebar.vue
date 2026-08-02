@@ -128,7 +128,7 @@ const importItems = [
 const workspaceItems = [
   { title: 'Мои workspace', icon: 'mdi-folder-outline', to: '/workspace/select' },
   { title: 'Участники', icon: 'mdi-account-group-outline', to: '/workspace/members' },
-  { title: 'Настройки', icon: 'mdi-cog-outline', to: undefined },
+  { title: 'Настройки', icon: 'mdi-cog-outline', to: '/workspace/jira' },
 ]
 
 const docItems = [

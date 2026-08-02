@@ -6,7 +6,7 @@ export interface UserProfile {
   email: string
   locale: string
   timezone: string
-  notification_preferences: string
+  notification_preferences: Record<string, unknown>
   created_at: IsoDateTimeString
   updated_at: IsoDateTimeString
 }
